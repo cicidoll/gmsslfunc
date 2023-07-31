@@ -2,8 +2,6 @@ from pysmx.SM3 import hash_msg
 from interval import Interval
 from typing import Tuple, List
 import random
-import unittest, sys
-sys.path.append('.')
 # 导入自定义库
 from SM2Key import calculate_public_key
 from ASN1Der import ASN1DerObjectTagsEnum
@@ -11,9 +9,8 @@ from Calculate.EllipticCurve import SM2EllipticCurve
 from Calculate.PointCalculate import kG, PointCalculate
 from Calculate.ModCalculate import int_mod, decimal_mod
 from ASN1Der.Factory import RawToASN1DerObjectFactory
-from ASN1Der.Factory import ASN1DerObjectFactory, DerObjectsSplit
+from ASN1Der.Factory import DerObjectsSplit
 from ASN1Der.Object.RawToASN1DerObject import Sequence as RawToASN1DerSequence
-from ASN1Der.Object.ASN1DerToRawObject import Sequence as ASN1DerToRawSequence
 from ASN1Der.Object.ASN1DerToRawObject import INTEGER as ASN1DerToRawINTEGER
 from ASN1Der.Object.ASN1DerToRawObject import DerToRawIBase
 from utils.StringConvert import StringConvert
