@@ -15,12 +15,15 @@ class TestDerIBase(unittest.TestCase):
         """ 测试SM2withSM3签名 """
         signed_text = SM2withSM3Sign(
             test_data_1["private_key"],
-            test_data_1["public_key"]).sign(test_data_1["plain_text"]
+            test_data_1["public_key"]).sign(
+                test_data_1["plain_text"],
+                asn1_der=True
             )
         verify_flag: bool = SM2withSM3Verify().verify(
             plain_text=test_data_1["plain_text"],
             signed_text = signed_text,
-            pubkey = test_data_1["public_key"]
+            pubkey = test_data_1["public_key"],
+            asn1_der=True
         )
         self.assertTrue(verify_flag)
 

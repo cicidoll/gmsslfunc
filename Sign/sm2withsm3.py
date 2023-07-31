@@ -1,11 +1,22 @@
 from pysmx.SM3 import hash_msg
 from interval import Interval
+from typing import Tuple, List
+import random
+import unittest, sys
+sys.path.append('.')
+# 导入自定义库
 from SM2Key import calculate_public_key
+from ASN1Der import ASN1DerObjectTagsEnum
 from Calculate.EllipticCurve import SM2EllipticCurve
 from Calculate.PointCalculate import kG, PointCalculate
 from Calculate.ModCalculate import int_mod, decimal_mod
-from typing import Tuple, List
-import random, time
+from ASN1Der.Factory import RawToASN1DerObjectFactory
+from ASN1Der.Factory import ASN1DerObjectFactory, DerObjectsSplit
+from ASN1Der.Object.RawToASN1DerObject import Sequence as RawToASN1DerSequence
+from ASN1Der.Object.ASN1DerToRawObject import Sequence as ASN1DerToRawSequence
+from ASN1Der.Object.ASN1DerToRawObject import INTEGER as ASN1DerToRawINTEGER
+from ASN1Der.Object.ASN1DerToRawObject import DerToRawIBase
+from utils.StringConvert import StringConvert
 
 LEN_PARA = 64
 
@@ -21,14 +32,37 @@ class SM2withSM3Sign:
     elliptic_curve = SM2EllipticCurve
 
     def __init__(self, private_key: str, public_key: str = "") -> None:
+        """ 初始化
+            :params private_key Hex编码Raw格式私钥
+            :params public_key Hex编码Raw格式128长度公钥
+        """
         # 赋值实例属性
         self.public_key = public_key if public_key != "" else calculate_public_key(private_key)
         self.private_key = private_key
 
-    def sign(self, msg: str, userid: str = "1234567812345678") -> str:
+    def sign(self, msg: str, userid: str = "1234567812345678", asn1_der: bool = False) -> str:
+        """ SM2withSM3签名
+            :params msg utf-8编码原文
+            :params userid 使用默认1234567812345678 
+            :params asn1_der 是否输出Der格式Base64编码签名
+            :return 字符串类型 当asn1_der为True时，返回Der格式Base64编码签名值；当asn1_der为False时，返回Raw格式Hex编码128长度的签名值
+        """
         A2: int = int(self._A1andA2(msg, userid), base=16) # 十六进制
         R, S = self._A3A4A5A6(A2)
-        return "%s%s" % (hex(R).replace("0x", "").zfill(64), hex(S).replace("0x", "").zfill(64))
+        if asn1_der == False:
+            return "%s%s" % (hex(R).replace("0x", "").zfill(64), hex(S).replace("0x", "").zfill(64))
+        else:
+            result: RawToASN1DerSequence = RawToASN1DerObjectFactory.create_sequence_object(
+                RawToASN1DerObjectFactory.create_der_object(
+                    hex(R).replace("0x", "").zfill(64),
+                    ASN1DerObjectTagsEnum.INTEGER.value
+                ),
+                RawToASN1DerObjectFactory.create_der_object(
+                    hex(S).replace("0x", "").zfill(64),
+                    ASN1DerObjectTagsEnum.INTEGER.value
+                )
+            ).get_base64_der()
+            return result
 
     def _A1andA2(self, msg: str, userid: str) -> str:
         IDA: str = userid.encode('utf-8').hex() # userid 
@@ -54,10 +88,21 @@ class SM2withSM3Verify:
     # 素数域256位椭圆曲线参数
     elliptic_curve = SM2EllipticCurve
 
-    def verify(self, plain_text: str, signed_text: str, pubkey: str, userid: str = "1234567812345678") -> bool:
-        """ 验证Raw格式SM2withSM3裸签名 """
-        R = signed_text[:64]
-        S = signed_text[64:]
+    def verify(self, plain_text: str, signed_text: str, pubkey: str, userid: str = "1234567812345678", asn1_der: bool = False) -> bool:
+        """ 验证Raw格式SM2withSM3裸签名
+            :params plain_text utf-8编码原文
+            :params signed_text 签名值 当asn1_der为True时，输入Der格式Base64编码签名值；当asn1_der为False时，输入Raw格式Hex编码128长度的签名值
+            :params pubkey Hex编码128长度公钥
+            :params userid 使用默认1234567812345678 
+            :params asn1_der 是否输出Der格式Base64编码签名
+            :return 布尔类型 验签结果
+        """
+        if asn1_der == True:
+            signed_text_der_list: List[DerToRawIBase] = DerObjectsSplit(StringConvert.base64_convert_hex(signed_text)).der_objects_list
+            [R, S] = [ i.value for i in signed_text_der_list if isinstance(i, ASN1DerToRawINTEGER) ]
+        else:
+            R = signed_text[:64]
+            S = signed_text[64:]
         if self._B1B2(R, S) == False: return False
         B4 = self._B3B4(plain_text, pubkey, userid)
         return self._B5B6B7(R, S, pubkey, B4)
