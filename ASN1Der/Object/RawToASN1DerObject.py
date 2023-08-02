@@ -1,21 +1,18 @@
 from enum import Enum
 # 导入自定义库
 from utils.StringConvert import StringConvert
+from .IBase import DerObjectIBase
 from ..TagsEnum import ASN1DerObjectTagsEnum
 from ..Error import ASN1DerProcessCode, ASN1DerProcessError
 
-class RawToDerIBase:
+class RawToDerIBase(DerObjectIBase):
     """ 遵循TLV格式的ASN1.Der编码规则: 将String实例化为Der对象 """
 
     def __init__(self, value: str) -> None:
         """ 初始化的value值需为十六进制
             基类仅处理Length字段及常规Value字段
         """
-        # 定义实例属性
-        self.tag: str # Tag字段，代表类型
-        self.length: str # Length字段，代表长度，十六进制
-        self.value: str # Value字段，代表实际值，十六进制
-        self._value: str # 原始输入Value值
+        super().__init__(value)
         # 启动主线程
         try:
             self.main(value)
@@ -25,7 +22,6 @@ class RawToDerIBase:
     def main(self, value: str) -> None:
         """ 主线程 """
         self._process_string_type(value) # 编码检测
-        self._value = value # 保存原始值
         self._process_value(value) # 根据不同类型处理Value值
         self._calculation_length() # 赋值Length字段
 
@@ -37,14 +33,19 @@ class RawToDerIBase:
         """ 获取Base64编码的Der对象 """
         return StringConvert.hex_convert_base64(self.get_hex_der())
 
+    def get_hex_raw(self) -> str:
+        """ 获取Hex编码的Raw对象 """
+        return self.hex_raw_value
+
     def _process_string_type(self, value: str):
         """ 输入值编码检测-需要为Hex编码 """
         if StringConvert.is_base64(value) or not StringConvert.is_hex(value):
             raise ASN1DerProcessError(ASN1DerProcessCode.StringTypeError) # 抛出编码异常
 
     def _process_value(self, value: str) -> None:
-        """ 处理Value字段-更新self.value """
-        self._value = value
+        """ 更新Value字段-self.hex_raw_value """
+        self._input_value = value
+        self.hex_raw_value = value
         self.value = value
 
     def _calculation_length(self) -> None:
@@ -87,7 +88,8 @@ class INTEGER(RawToDerIBase):
 
     def _process_value(self, value: str) -> None:
         """ 处理Value字段-处理前导字节0x00 """
-        self._value = value
+        self._input_value = value
+        self.hex_raw_value = value
         self.value = "00" + value if StringConvert.hex_convert_bin(value)[0] == "1" else value
 
 class BitString(RawToDerIBase):
@@ -100,7 +102,8 @@ class BitString(RawToDerIBase):
 
     def _process_value(self, value: str) -> None:
         """ 处理Value字段的前导字节 """
-        self._value = value
+        self._input_value = value
+        self.hex_raw_value = value
         self.value = "00" + value if len(value) % 2 == 0 else hex(4).replace("0x", "").zfill(2) + value + "0"
 
 class RawToASN1DerObjectsEnum(Enum):

@@ -3,13 +3,13 @@ from typing import List, Tuple
 from utils.StringConvert import StringConvert
 from ..TagsEnum import ASN1DerObjectTagsEnum
 from ..Error import ASN1DerProcessCode, ASN1DerProcessError
-from ..Object.ASN1DerToRawObject import DerToRawIBase, ASN1DerToRawObjectsEnum
+from ..Object import DerObjectIBase, ASN1DerToRawObjectsEnum
 
 class ASN1DerObjectFactory:
     """ 创建ASN1.Der对象-工厂 """
 
     @staticmethod
-    def create_der_object(value: str) -> DerToRawIBase:
+    def create_der_object(value: str) -> DerObjectIBase:
         """ 创建对应的对象类型 """
         try:
             tag: str = value[:2]
@@ -24,19 +24,19 @@ class DerObjectsSplit:
     def __init__(self, value: str) -> None:
         try:
             # 声明并赋值类属性
-            self.der_objects_list: List[DerToRawIBase] = self._process_values(value)
+            self.der_objects_list: List[DerObjectIBase] = self._process_values(value)
         except (ValueError, AttributeError):
             raise ASN1DerProcessError(ASN1DerProcessCode.ValueTypeError) # 抛出类型异常
 
-    def _process_values(self, value: str) -> List[DerToRawIBase]:
+    def _process_values(self, value: str) -> List[DerObjectIBase]:
         data_list: List[str] = [value]
-        result_list: List[DerToRawIBase] = []
+        result_list: List[DerObjectIBase] = []
         # 开始处理-队列处理法
         while len(data_list) > 0:
             sub = data_list.pop(0) # pop(0)保证实例化的Der对象顺序正确
             sub_object: DerToRawIBase = ASN1DerObjectFactory.create_der_object(sub)
             if sub_object.tag == ASN1DerObjectTagsEnum.Sequence.value:
-                data_list += self._split_sequence(sub_object.value)
+                data_list += self._split_sequence(sub_object.get_hex_raw())
             else:
                 result_list.append(sub)
         return [ASN1DerObjectFactory.create_der_object(i) for i in result_list]
