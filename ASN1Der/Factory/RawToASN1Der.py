@@ -17,10 +17,12 @@ class RawToASN1DerObjectFactory:
             raise ASN1DerProcessError(ASN1DerProcessCode.ValueTypeError) # 抛出类型异常
     
     @staticmethod
-    def create_sequence_object(der1: DerObjectIBase, der2: DerObjectIBase) -> Sequence:
+    def create_sequence_object(*ders: DerObjectIBase) -> Sequence:
         """ 创建Sequence序列类型Der对象 """
         try:
-            value: str = der1.get_hex_der() + der2.get_hex_der()
+            value: str = ""
+            for der in ders:
+                value += der.get_hex_der()
             return RawToASN1DerObjectsEnum.Sequence.value(value)
         except (ValueError, AttributeError):
             raise ASN1DerProcessError(ASN1DerProcessCode.ValueTypeError) # 抛出类型异常

@@ -106,9 +106,36 @@ class BitString(RawToDerIBase):
         self.hex_raw_value = value
         self.value = "00" + value if len(value) % 2 == 0 else hex(4).replace("0x", "").zfill(2) + value + "0"
 
+class OCTETSTRING(RawToDerIBase):
+    """ OCTETSTRING-八进制字符串类型 """
+
+    def __init__(self, value: str) -> None:
+        super().__init__(value)
+        # OCTETSTRING类型Tag为04
+        self._process_tag(ASN1DerObjectTagsEnum.OCTETSTRING.value)
+
+class ContextSpecific_A0(RawToDerIBase):
+    """ ContextSpecific_A0-私钥Der对象-标签A0类型 """
+
+    def __init__(self, value: str) -> None:
+        super().__init__(value)
+        # ContextSpecific_A0类型Tag为A0
+        self._process_tag(ASN1DerObjectTagsEnum.ContextSpecific_A0.value)
+
+class ContextSpecific_A1(RawToDerIBase):
+    """ ContextSpecific_A1-私钥Der对象-标签A1类型 """
+
+    def __init__(self, value: str) -> None:
+        super().__init__(value)
+        # ContextSpecific_A1类型Tag为A1
+        self._process_tag(ASN1DerObjectTagsEnum.ContextSpecific_A1.value)
+
 class RawToASN1DerObjectsEnum(Enum):
     """ RawToASN1Der对象类型枚举 """
     Sequence: Sequence = Sequence # Sequence-序列类型
     Oid: Oid = Oid # OID-对象标识符类型
     BitString: BitString = BitString # BIT STRING类型
     INTEGER: INTEGER = INTEGER # INTEGER类型
+    OCTETSTRING: OCTETSTRING = OCTETSTRING # OCTET STRING类型-八进制字符串
+    ContextSpecific_A0: ContextSpecific_A0 = ContextSpecific_A0 # ContextSpecific_A0-私钥Der对象-标签A0类型
+    ContextSpecific_A1: ContextSpecific_A1 = ContextSpecific_A1 # ContextSpecific_A1-私钥Der对象-标签A1类型

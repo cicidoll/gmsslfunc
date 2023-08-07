@@ -35,7 +35,9 @@ class DerObjectsSplit:
         while len(data_list) > 0:
             sub = data_list.pop(0) # pop(0)保证实例化的Der对象顺序正确
             sub_object: DerObjectIBase = ASN1DerObjectFactory.create_der_object(sub)
-            if sub_object.tag == ASN1DerObjectTagsEnum.Sequence.value:
+            if sub_object.tag == ASN1DerObjectTagsEnum.Sequence.value or \
+                sub_object.tag == ASN1DerObjectTagsEnum.ContextSpecific_A0.value or \
+                sub_object.tag == ASN1DerObjectTagsEnum.ContextSpecific_A1.value:
                 data_list += self._split_sequence(sub_object.get_hex_raw())
             else:
                 result_list.append(sub)

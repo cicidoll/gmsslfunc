@@ -1,5 +1,5 @@
 from Calculate.EllipticCurve import SM2EllipticCurve
-from SM2Key import calculate_public_key
+from .func import calculate_public_key
 import random
 
 class SM2KeyCreate:

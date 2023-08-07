@@ -3,17 +3,11 @@ from interval import Interval
 from typing import Tuple, List
 import random
 # 导入自定义库
-from SM2Key import calculate_public_key
-from ASN1Der import ASN1DerObjectTagsEnum
+from SM2Key.SM2KeyCreate import calculate_public_key
 from Calculate.EllipticCurve import SM2EllipticCurve
 from Calculate.PointCalculate import kG, PointCalculate
 from Calculate.ModCalculate import int_mod, decimal_mod
-from ASN1Der.Factory import RawToASN1DerObjectFactory
-from ASN1Der.Factory import DerObjectsSplit
-from ASN1Der.Object.RawToASN1DerObject import Sequence as RawToASN1DerSequence
-from ASN1Der.Object.ASN1DerToRawObject import INTEGER as ASN1DerToRawINTEGER
-from ASN1Der.Object.ASN1DerToRawObject import DerToRawIBase
-from utils.StringConvert import StringConvert
+from SM2Key.Pubkey import SM2PubkeyProcess
 
 LEN_PARA = 64
 
@@ -37,31 +31,18 @@ class SM2withSM3Sign:
         self.public_key = public_key if public_key != "" else calculate_public_key(private_key)
         self.private_key = private_key
 
-    def sign(self, msg: str, userid: str = "1234567812345678", asn1_der: bool = False) -> str:
+    def sign(self, msg: str, userid: str = "1234567812345678") -> str:
         """ SM2withSM3签名
             :params msg utf-8编码原文
-            :params userid 使用默认1234567812345678 
-            :params asn1_der 是否输出Der格式Base64编码签名
-            :return 字符串类型 当asn1_der为True时，返回Der格式Base64编码签名值；当asn1_der为False时，返回Raw格式Hex编码128长度的签名值
+            :params userid 使用默认1234567812345678
+            :return 字符串类型 返回Raw格式Hex编码128长度的签名值
         """
         A2: int = int(self._A1andA2(msg, userid), base=16) # 十六进制
         R, S = self._A3A4A5A6(A2)
-        if asn1_der == False:
-            return "%s%s" % (hex(R).replace("0x", "").zfill(64), hex(S).replace("0x", "").zfill(64))
-        else:
-            result: RawToASN1DerSequence = RawToASN1DerObjectFactory.create_sequence_object(
-                RawToASN1DerObjectFactory.create_der_object(
-                    hex(R).replace("0x", "").zfill(64),
-                    ASN1DerObjectTagsEnum.INTEGER.value
-                ),
-                RawToASN1DerObjectFactory.create_der_object(
-                    hex(S).replace("0x", "").zfill(64),
-                    ASN1DerObjectTagsEnum.INTEGER.value
-                )
-            ).get_base64_der()
-            return result
+        return "%s%s" % (hex(R).replace("0x", "").zfill(64), hex(S).replace("0x", "").zfill(64))
 
     def _A1andA2(self, msg: str, userid: str) -> str:
+        """ A1A2计算过程 """
         IDA: str = userid.encode('utf-8').hex() # userid 
         ENTLA: str = hex_zfill(hex(int(len(IDA) / 2)*8)).zfill(4) # hex格式
         a, b, Gx, Gy = map(hex_zfill, map(hex, (self.elliptic_curve.a, self.elliptic_curve.b, self.elliptic_curve._Gx, self.elliptic_curve._Gy)))
@@ -71,6 +52,7 @@ class SM2withSM3Sign:
         return A2
 
     def _A3A4A5A6(self, A2: int) -> Tuple[int, int]:
+        """ A3A4A5A6计算过程 """
         while True:
             k: int = random.randint(1, self.elliptic_curve.n - 2) # A3
             x1 = int(kG(k, "%64x%64x" % (self.elliptic_curve.G[0], self.elliptic_curve.G[1]), LEN_PARA)[:64], 16) # A4
@@ -85,22 +67,20 @@ class SM2withSM3Verify:
     # 素数域256位椭圆曲线参数
     elliptic_curve = SM2EllipticCurve
 
-    def verify(self, plain_text: str, signed_text: str, pubkey: str, userid: str = "1234567812345678", asn1_der: bool = False) -> bool:
+    def verify(self, plain_text: str, signed_text: str, pubkey: str, userid: str = "1234567812345678") -> bool:
         """ 验证Raw格式SM2withSM3裸签名
             :params plain_text utf-8编码原文
             :params signed_text 签名值 当asn1_der为True时，输入Der格式Base64编码签名值；当asn1_der为False时，输入Raw格式Hex编码128长度的签名值
             :params pubkey Hex编码128长度公钥
             :params userid 使用默认1234567812345678 
-            :params asn1_der 是否输出Der格式Base64编码签名
+            :params asn1_der 是否输入Der格式Base64编码签名
             :return 布尔类型 验签结果
         """
-        if asn1_der == True:
-            signed_text_der_list: List[DerToRawIBase] = DerObjectsSplit(StringConvert.base64_convert_hex(signed_text)).der_objects_list
-            [R, S] = [ i.value for i in signed_text_der_list if isinstance(i, ASN1DerToRawINTEGER) ]
-        else:
-            R = signed_text[:64]
-            S = signed_text[64:]
+        R = signed_text[:64]
+        S = signed_text[64:]
         if self._B1B2(R, S) == False: return False
+        # SM2公钥兼容处理
+        pubkey = SM2PubkeyProcess(pubkey).sm2_pubkey.hex_raw
         B4 = self._B3B4(plain_text, pubkey, userid)
         return self._B5B6B7(R, S, pubkey, B4)
 

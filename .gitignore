@@ -3,3 +3,5 @@
 *.7z
 test.py
 test1.py
+test_data.txt
+/Calculate/PointCalculate/Jacobian.py

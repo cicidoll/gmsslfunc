@@ -1,7 +1,8 @@
 import unittest, sys
 sys.path.append('.')
 
-from Pubkey import SM2Pubkey, SM2PubkeyProcess
+from SM2Key.Pubkey import SM2Pubkey, SM2PubkeyProcess
+from utils.StringConvert import StringConvert
 
 class TestDerIBase(unittest.TestCase):
 
@@ -28,6 +29,11 @@ class TestDerIBase(unittest.TestCase):
         sm2_pubkey: SM2Pubkey = SM2PubkeyProcess(data["input_string_3"]).sm2_pubkey
         self.assertEqual(sm2_pubkey.base64_der, data["base64_der"])
         self.assertEqual(sm2_pubkey.hex_raw, data["hex_raw"].lower())
+        #
+        sm2_pubkey: SM2Pubkey = SM2PubkeyProcess("04439a9932c2ff96330913b25c56638721ece87b872a92b2de26dc5844f4bc44adc33e05ebd7c983064effae045d78b15c1c451cf61d510457462acbf455ce5cf4").sm2_pubkey
+        print(StringConvert.base64_convert_hex(sm2_pubkey.base64_der))
+        print(sm2_pubkey.hex_raw)
+        
 
 if __name__ == "__main__":
     unittest.main()
