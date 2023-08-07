@@ -31,23 +31,23 @@ class SM2withSM3Sign:
         self.public_key = public_key if public_key != "" else calculate_public_key(private_key)
         self.private_key = private_key
 
-    def sign(self, msg: str, userid: str = "1234567812345678") -> str:
+    def sign(self, plain_text: str, userid: str = "1234567812345678") -> str:
         """ SM2withSM3签名
-            :params msg utf-8编码原文
+            :params plain_text utf-8编码原文
             :params userid 使用默认1234567812345678
             :return 字符串类型 返回Raw格式Hex编码128长度的签名值
         """
-        A2: int = int(self._A1andA2(msg, userid), base=16) # 十六进制
+        A2: int = int(self._A1andA2(plain_text, userid), base=16) # 十六进制
         R, S = self._A3A4A5A6(A2)
         return "%s%s" % (hex(R).replace("0x", "").zfill(64), hex(S).replace("0x", "").zfill(64))
 
-    def _A1andA2(self, msg: str, userid: str) -> str:
+    def _A1andA2(self, plain_text: str, userid: str) -> str:
         """ A1A2计算过程 """
         IDA: str = userid.encode('utf-8').hex() # userid 
         ENTLA: str = hex_zfill(hex(int(len(IDA) / 2)*8)).zfill(4) # hex格式
         a, b, Gx, Gy = map(hex_zfill, map(hex, (self.elliptic_curve.a, self.elliptic_curve.b, self.elliptic_curve._Gx, self.elliptic_curve._Gy)))
         ZA = bytes_sm3((ENTLA+IDA+a+b+Gx+Gy+self.public_key).lower())
-        M1 = ZA + hex_zfill(msg.encode("utf-8").hex())
+        M1 = ZA + hex_zfill(plain_text.encode("utf-8").hex())
         A2 = bytes_sm3(M1)
         return A2
 

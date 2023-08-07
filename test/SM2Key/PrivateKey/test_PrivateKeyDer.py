@@ -3,6 +3,7 @@ import unittest, sys
 sys.path.append('.')
 
 from SM2Key.PrivateKey import PrivateKeyDer
+from SM2Key.PrivateKey.SM2PrivateKeyProcess import SM2PrivateKeyProcess
 
 class TestPubkeyDer(unittest.TestCase):
 
@@ -21,18 +22,21 @@ class TestPubkeyDer(unittest.TestCase):
         }
         # 开始测试
         ## input_string_1
-        sm2_privatekey_1: PrivateKeyDer.PrivateKeyDerGMT00102012 = PrivateKeyDer.PrivateKeyDerGMT00102012Factory.create_Raw2Der_PrivateKeyDer(test_data["input_string_1"])
+        sm2_private_key_process: SM2PrivateKeyProcess = SM2PrivateKeyProcess(test_data["input_string_1"])
+        sm2_privatekey_1: PrivateKeyDer.PrivateKeyDerGMT00102012 = sm2_private_key_process.private_key_der
         self.assertEqual(sm2_privatekey_1.get_hex_raw().lower(), test_data["hex_raw"].lower())
         self.assertEqual(sm2_privatekey_1.get_hex_der().lower(), test_data["hex_der"].lower())
         self.assertEqual(sm2_privatekey_1.get_base64_der(), test_data["base64_der"])
         ## input_string_2
-        sm2_privatekey_2: PrivateKeyDer.PrivateKeyDerGMT00102012 = PrivateKeyDer.PrivateKeyDerGMT00102012Factory.create_Der2Raw_PrivateKeyDer(test_data["input_string_2"])
+        sm2_private_key_process: SM2PrivateKeyProcess = SM2PrivateKeyProcess(test_data["input_string_2"])
+        sm2_privatekey_2: PrivateKeyDer.PrivateKeyDerGMT00102012 = sm2_private_key_process.private_key_der
         self.assertEqual(sm2_privatekey_2.get_hex_raw().lower(), test_data["hex_raw"].lower())
         self.assertEqual(sm2_privatekey_2.get_hex_der().lower(), test_data["hex_der"].lower())
         self.assertEqual(sm2_privatekey_2.get_base64_der(), test_data["base64_der"])
         self.assertTrue(PrivateKeyDer.PrivateKeyDerGMT00102012Factory.is_hex_der_private_key(test_data["input_string_2"]))
         ## input_string_3
-        sm2_privatekey_3: PrivateKeyDer.PrivateKeyDerGMT00102012 = PrivateKeyDer.PrivateKeyDerGMT00102012Factory.create_Der2Raw_PrivateKeyDer(test_data["input_string_3"])
+        sm2_private_key_process: SM2PrivateKeyProcess = SM2PrivateKeyProcess(test_data["input_string_3"])
+        sm2_privatekey_3: PrivateKeyDer.PrivateKeyDerGMT00102012 = sm2_private_key_process.private_key_der
         self.assertEqual(sm2_privatekey_3.get_hex_raw().lower(), test_data["hex_raw"].lower())
         self.assertEqual(sm2_privatekey_3.get_hex_der().lower(), test_data["hex_der"].lower())
         self.assertEqual(sm2_privatekey_3.get_base64_der(), test_data["base64_der"])

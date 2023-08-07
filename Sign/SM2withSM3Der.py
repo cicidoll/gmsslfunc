@@ -21,14 +21,14 @@ class SM2withSM3SignDer:
             self.public_key.get_hex_raw_128()
         )
 
-    def sign(self, msg: str, userid: str = "1234567812345678", asn1_der: bool = False) -> str:
+    def sign(self, plain_text: str, userid: str = "1234567812345678", asn1_der: bool = False) -> str:
         """ SM2withSM3签名
-            :params msg utf-8编码原文
+            :params plain_text utf-8编码原文
             :params userid 使用默认1234567812345678 
             :params asn1_der 是否输出Der格式Base64编码签名
             :return 字符串类型 当asn1_der为True时，返回Der格式Base64编码签名值；当asn1_der为False时，返回Raw格式Hex编码128长度的签名值
         """
-        signed_data: str = self.sm2_with_sm3_sign.sign(msg, userid)
+        signed_data: str = self.sm2_with_sm3_sign.sign(plain_text, userid)
         if asn1_der == False:
             return "%s" % signed_data
         else:

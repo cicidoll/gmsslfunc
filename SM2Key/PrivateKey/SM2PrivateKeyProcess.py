@@ -30,8 +30,8 @@ class SM2PrivateKeyProcess:
         # 1、检查编码类型
         if not StringConvert.is_base64(input_string) and not StringConvert.is_hex(input_string):
             raise PrivateKeyProcessError(PrivateKeyProcessCode.StringTypeError) # 抛出编码类型报错
-        # Base64编码统一处理为十六进制
-        input_string = StringConvert.base64_convert_hex(input_string) if StringConvert.is_base64(input_string) else input_string
+        # Base64编码统一处理为十六进制-大写（匹配ASN1DerObjectTagsEnum中的A0/a0）
+        input_string = StringConvert.base64_convert_hex(input_string).upper() if StringConvert.is_base64(input_string) else input_string
         # 2、检查格式类型
         if len(input_string) == PRIVATE_KEY_LEN_RAW:
             self._private_key_type = "Raw" # 确定私钥值类型为Raw格式
