@@ -15,8 +15,6 @@ private_key: dict = {
     "hex_raw": "e867d7e12e64223b2e51c5e13a4448945b440b132f7a22d86231ffd9213a7cfb"
 }
 
-print("-"*40)
-
 """ 输出输入Der格式Base64编码签名值 Start """
 
 # 签名值
@@ -41,8 +39,6 @@ verify_flag: bool = SM2withSM3VerifyDer().verify(
 print("验签结果：%s" % verify_flag)
 
 """ 输出输入Der格式Base64编码签名值 End """
-
-print("-"*40)
 
 """ 输出输入Raw格式Hex编码签名值 Start """
 

@@ -1,3 +1,4 @@
+from typing import Dict
 import unittest, sys
 sys.path.append('.')
 
@@ -8,7 +9,7 @@ class TestPubkeyDer(unittest.TestCase):
     def test_pubkey_der_instance(self):
         """ 测试SM2公钥值转换数据 """
         # 测试SM2公钥值转换数据 
-        test_data: dict = {
+        test_data: Dict[str, str] = {
             # 测试输入
             "input_string_1": "3059301306072A8648CE3D020106082A811CCF5501822D034200046A826E79032BA6144FA1EB22F4F2BA3D2B77EBDC54789C1EF15B64FBCFE7A259E771DDD2FE6DDB377B1A9820B394F58AFA2BF02226EC5DAEFACC14B2A22D4E11",
             "input_string_2": "6A826E79032BA6144FA1EB22F4F2BA3D2B77EBDC54789C1EF15B64FBCFE7A259E771DDD2FE6DDB377B1A9820B394F58AFA2BF02226EC5DAEFACC14B2A22D4E11",
