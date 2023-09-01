@@ -8,6 +8,7 @@ from Calculate.EllipticCurve import SM2EllipticCurve
 from Calculate.PointCalculate import kG, PointCalculate
 from Calculate.ModCalculate import int_mod, decimal_mod
 from SM2Key.Pubkey import SM2PubkeyProcess
+from utils.StringConvert import StringConvert
 
 LEN_PARA = 64
 
@@ -23,7 +24,8 @@ class SM2withSM3Sign:
     elliptic_curve = SM2EllipticCurve
 
     def __init__(self, private_key: str, public_key: str = "") -> None:
-        """ 初始化
+        """ 
+            初始化
             :params private_key Hex编码Raw格式私钥
             :params public_key Hex编码Raw格式128长度公钥
         """
@@ -32,10 +34,11 @@ class SM2withSM3Sign:
         self.private_key = private_key
 
     def sign(self, plain_text: str, userid: str = "1234567812345678") -> str:
-        """ SM2withSM3签名
-            :params plain_text utf-8编码原文
+        """ 
+            SM2withSM3签名
+            :params plain_text utf-8编码原文 Base64编码
             :params userid 使用默认1234567812345678
-            :return 字符串类型 返回Raw格式Hex编码128长度的签名值
+            :return: 字符串类型 返回Raw格式Hex编码128长度的签名值
         """
         A2: int = int(self._A1andA2(plain_text, userid), base=16) # 十六进制
         R, S = self._A3A4A5A6(A2)
@@ -47,7 +50,8 @@ class SM2withSM3Sign:
         ENTLA: str = hex_zfill(hex(int(len(IDA) / 2)*8)).zfill(4) # hex格式
         a, b, Gx, Gy = map(hex_zfill, map(hex, (self.elliptic_curve.a, self.elliptic_curve.b, self.elliptic_curve._Gx, self.elliptic_curve._Gy)))
         ZA = bytes_sm3((ENTLA+IDA+a+b+Gx+Gy+self.public_key).lower())
-        M1 = ZA + hex_zfill(plain_text.encode("utf-8").hex())
+        # M1 = ZA + hex_zfill(plain_text.encode("utf-8").hex())
+        M1 = ZA + hex_zfill(StringConvert.base64_convert_hex(plain_text)) # plain_text为utf-8字符 Base64编码
         A2 = bytes_sm3(M1)
         return A2
 
@@ -68,13 +72,14 @@ class SM2withSM3Verify:
     elliptic_curve = SM2EllipticCurve
 
     def verify(self, plain_text: str, signed_text: str, pubkey: str, userid: str = "1234567812345678") -> bool:
-        """ 验证Raw格式SM2withSM3裸签名
-            :params plain_text utf-8编码原文
-            :params signed_text 签名值 当asn1_der为True时，输入Der格式Base64编码签名值；当asn1_der为False时，输入Raw格式Hex编码128长度的签名值
+        """ 
+            验证Raw格式SM2withSM3裸签名
+            :params plain_text utf-8字符 Base64编码
+            :params signed_text 签名值 True: 输入Der格式Base64编码签名值; False: 输入Raw格式Hex编码128长度的签名值
             :params pubkey Hex编码128长度公钥
             :params userid 使用默认1234567812345678 
             :params asn1_der 是否输入Der格式Base64编码签名
-            :return 布尔类型 验签结果
+            :return: 布尔类型 验签结果
         """
         R = signed_text[:64]
         S = signed_text[64:]
@@ -94,7 +99,8 @@ class SM2withSM3Verify:
         ENTLA: str = hex_zfill(hex(int(len(IDA) / 2)*8)).zfill(4) # hex格式
         a, b, Gx, Gy = map(hex_zfill, map(hex, (self.elliptic_curve.a, self.elliptic_curve.b, self.elliptic_curve._Gx, self.elliptic_curve._Gy)))
         ZA = bytes_sm3((ENTLA+IDA+a+b+Gx+Gy+pubkey).lower())
-        M1 = ZA + hex_zfill(plain_text.encode("utf-8").hex()) # B3
+        # M1 = ZA + hex_zfill(plain_text.encode("utf-8").hex()) # B3
+        M1 = ZA + hex_zfill(StringConvert.base64_convert_hex(plain_text)) # B3: plain_text为utf-8字符集Base64编码
         B4 = bytes_sm3(M1)
         return int(B4, 16)
     

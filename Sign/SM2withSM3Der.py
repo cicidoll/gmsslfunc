@@ -22,11 +22,12 @@ class SM2withSM3SignDer:
         )
 
     def sign(self, plain_text: str, userid: str = "1234567812345678", asn1_der: bool = False) -> str:
-        """ SM2withSM3签名
-            :params plain_text utf-8编码原文
+        """ 
+            SM2withSM3签名
+            :params plain_text utf-8字符集 Base64编码
             :params userid 使用默认1234567812345678 
             :params asn1_der 是否输出Der格式Base64编码签名
-            :return 字符串类型 当asn1_der为True时，返回Der格式Base64编码签名值；当asn1_der为False时，返回Raw格式Hex编码128长度的签名值
+            :return: 字符串类型 True:返回Der格式Base64编码签名值; False:返回Raw格式Hex编码128长度的签名值
         """
         signed_data: str = self.sm2_with_sm3_sign.sign(plain_text, userid)
         if asn1_der == False:
@@ -43,9 +44,10 @@ class SM2withSM3SignDer:
 class SM2withSM3VerifyDer:
 
     def verify(self, plain_text: str, signed_text: str, public_key: str, userid: str = "1234567812345678", asn1_der: bool = False) -> bool:
-        """ 验证Raw格式SM2withSM3裸签名
+        """ 
+            验证Raw格式SM2withSM3裸签名
             :params plain_text utf-8编码原文
-            :params signed_text 签名值 当asn1_der为True时，输入Der格式Base64编码签名值；当asn1_der为False时，输入Raw格式Hex编码128长度的签名值
+            :params signed_text 签名值 True: 输入Der格式Base64编码签名值; False: 输入Raw格式Hex编码128长度的签名值
             :params public_key Hex编码128/130长度公钥 Base64编码Der格式公钥 都支持
             :params userid 使用默认1234567812345678 
             :params asn1_der 是否输入Der格式Base64编码签名
