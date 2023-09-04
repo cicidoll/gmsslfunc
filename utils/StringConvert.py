@@ -14,6 +14,15 @@ class StringConvert:
         return str(base64.b64encode(bytes.fromhex(input_hex)))[2:-1]
     
     @staticmethod
+    def hex_convert_str(input_hex: str) -> str:
+        return bytes.fromhex(input_hex).decode("utf-8")
+
+    @staticmethod
+    def str_convert_base64(input_str: str) -> str:
+        """ 字符串转换为base64字符串 """
+        return str(base64.b64encode(input_str.encode("utf-8")), "utf-8")
+    
+    @staticmethod
     def is_base64(input_str: str) -> bool:
         """ 检测字符串是否为Base64编码 """
         base64_code = "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$"
@@ -57,4 +66,4 @@ class StringConvert:
     def bin_convert_int(input: str) -> int:
         """ 将二进制转换为十进制 """
         input = input.replace("0b", "") # 去除前缀
-        return int(input, 2)
+        return int(input, base=2)
