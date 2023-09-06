@@ -19,7 +19,7 @@ class SM2Asymmetric:
             SM2非对称加密算法
             :params plain_text utf-8字符集 Hex编码原文
             :params public_key 128长度Hex编码公钥
-            :returns: String类型 Hex编码 C1C3C2
+            :returns: String类型 Hex编码 C1C3C2 (C1: 04+x+y)
         """
         t: str = "0"
         while int(t, base=16)==0:
@@ -31,15 +31,16 @@ class SM2Asymmetric:
         form = "%%0%dx" % len(plain_text)
         C2 =  form % (int(plain_text, base=16) ^ int(t, base=16))
         C3 = get_hash('sm3', A4[:LEN_PARA] + plain_text + A4[LEN_PARA:], Hexstr=1)
-        return C1 + C3 + C2
+        return "04" + C1 + C3 + C2
 
     def decrypt(self, private_key: str, encrypted_data: str) -> str:
         """
             SM2非对称解密算法
             :params private_key 64长度Hex编码SM2私钥
-            :params encrypted_data utf-8字符集 Hex编码 C1C3C2排列
+            :params encrypted_data utf-8字符集 Hex编码 C1C3C2排列 (C1: 04+x+y)
             :returns: String类型-原文 Hex编码
         """
+        encrypted_data = encrypted_data[2:] if encrypted_data[:2] == "04" else encrypted_data
         C1: str = encrypted_data[:2*LEN_PARA]
         C3: str = encrypted_data[2*LEN_PARA: 3*LEN_PARA]
         C2: str = encrypted_data[3*LEN_PARA:]

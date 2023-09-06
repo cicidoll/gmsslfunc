@@ -1,8 +1,8 @@
 from typing import List
 # 导入自定义库
 from ASN1Der import ASN1DerObjectTagsEnum
-from SM2Key.PrivateKey import SM2PrivateKeyProcess, SM2PrivateKey
-from SM2Key.Pubkey import SM2PubkeyProcess, SM2Pubkey
+from SM2Key.PrivateKey import SM2PrivateKeyProcess
+from SM2Key.Pubkey import SM2PubkeyProcess
 from ASN1Der.Factory import RawToASN1DerObjectFactory, DerObjectsSplit
 from ASN1Der.Object.RawToASN1DerObject import Sequence as RawToASN1DerSequence
 from ASN1Der.Object.ASN1DerToRawObject import INTEGER as ASN1DerToRawINTEGER
@@ -22,7 +22,7 @@ class SM2AsymmetricDer:
             :params plain_text utf-8字符集 Base64编码原文
             :params public_key 支持: 128长度Raw格式Hex编码公钥/130长度Raw格式Hex编码公钥/Der格式Base64编码公钥/Der格式Hex编码公钥
             :params asn1_der True: 输出Der格式Base64编码加密值; False: 输出Raw格式Hex编码加密值
-            :returns: String类型 C1C3C2
+            :returns: String类型 C1C3C2 (C1: 04+x+y)
         """
         plain_text: str = StringConvert.base64_convert_hex(plain_text) # Base64编码转Hex编码
         public_key: str = SM2PubkeyProcess(public_key).pubkey_der.get_hex_raw_128() # 处理SM2公钥
@@ -32,6 +32,7 @@ class SM2AsymmetricDer:
         )
         if asn1_der == False: return encrypted_data # 输出Raw格式Hex编码加密值
         # Raw格式密文值转Der格式处理
+        encrypted_data = encrypted_data[2:] if encrypted_data[:2] == "04" else encrypted_data # 去掉04标识位
         C1 = encrypted_data[:128]
         C1X, C1Y = C1[:64], C1[64:]
         C3 = encrypted_data[128:192]
@@ -49,7 +50,7 @@ class SM2AsymmetricDer:
         """
             SM2非对称解密算法
             :params private_key 支持: 64长度Raw格式Hex编码SM2私钥 || Der格式Base64编码SM2私钥
-            :params encrypted_data utf-8字符集 C1C3C2排列
+            :params encrypted_data utf-8字符集 C1C3C2排列 (C1: 04+x+y)
             :params asn1_der True: 输入Der格式Base64编码加密值; False: 输入Raw格式Hex编码加密值
             :returns: String类型-原文 Base64编码
         """
@@ -60,10 +61,10 @@ class SM2AsymmetricDer:
             C1 = "".join([i.get_hex_raw() for i in encrypted_data_der_list if isinstance(i, ASN1DerToRawINTEGER)])
             C3 = "".join([i.get_hex_raw() for i in encrypted_data_der_list if isinstance(i, ASN1DerToRawOCTETSTRING) and len(i.get_hex_raw()) == 64])
             C2 = "".join([i.get_hex_raw() for i in encrypted_data_der_list if isinstance(i, ASN1DerToRawOCTETSTRING) and i.get_hex_raw() != C3])
-            encrypted_data: str = C1 + C3 +C2
+            encrypted_data: str = "04" + C1 + C3 +C2
         # 解密
         plain_text_data: str = self.sm2_asymmetric.decrypt(
-            private_key=private_key, 
-            encrypted_data=encrypted_data
+            private_key = private_key, 
+            encrypted_data = encrypted_data
         )
         return StringConvert.hex_convert_base64(plain_text_data)
