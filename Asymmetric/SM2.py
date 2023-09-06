@@ -14,7 +14,7 @@ class SM2Asymmetric:
     # 素数域256位椭圆曲线参数
     elliptic_curve = SM2EllipticCurve
 
-    def encrypt(self, plain_text: str, public_key: str = "") -> str:
+    def encrypt(self, plain_text: str, public_key: str) -> str:
         """
             SM2非对称加密算法
             :params plain_text utf-8字符集 Hex编码原文
