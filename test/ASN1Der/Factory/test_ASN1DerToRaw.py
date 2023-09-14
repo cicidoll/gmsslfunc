@@ -6,7 +6,7 @@ sys.path.append('.')
 from ASN1Der.Object.ASN1DerToRawObject import DerToRawIBase, BitString, Oid, Sequence
 from ASN1Der import DerObjectsSplit
 
-class TestDerIBase(unittest.TestCase):
+class TestASN1DerToRawObject(unittest.TestCase):
 
     def test_127_data(self):
         """ 测试长度127字节的数据 """

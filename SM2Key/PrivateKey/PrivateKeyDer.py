@@ -15,7 +15,7 @@ INTEGER_1: RawToASN1DerObject.INTEGER = RawToASN1DerObject.INTEGER(INTEGER_DATA_
 OID_1: RawToASN1DerObject.Oid = RawToASN1DerObject.Oid(OID_DATA_1)
 A0_1: DerObjectIBase = RawToASN1DerObjectFactory.create_der_object(
     value = OID_1.get_hex_der(), tag = ASN1DerObjectTagsEnum.ContextSpecific_A0.value
-    )
+)
 
 class PrivateKeyDerGMT00102012:
     """ SM2私钥信息-Der对象-GMT0010-2012 """
@@ -38,7 +38,7 @@ class PrivateKeyDerGMT00102012:
         self.private_key_der = RawToASN1DerObjectFactory.create_sequence_object(
             self._integer_1, self._octet_string_1,
             self._a0_der, self._a1_der
-            )
+        )
 
     def get_hex_raw(self) -> str:
         """ 返回64长度的Hex编码Raw格式私钥 """
@@ -89,7 +89,7 @@ class PrivateKeyDerGMT00102012Factory:
         private_key_der_object._octet_string_1 = [i for i in der_objects_list if i.__class__ == ASN1DerToRawObject.OCTETSTRING].pop(0)
         private_key_der_object._bit_string_1 = [i for i in der_objects_list if i.__class__ == ASN1DerToRawObject.BitString].pop(0)
         private_key_der_object._update_self_private_key()
-        return private_key_der_object   
+        return private_key_der_object
 
     @staticmethod
     def is_hex_der_private_key(input_hex_der: str) -> bool:

@@ -5,7 +5,7 @@ from ASN1Der.Object.RawToASN1DerObject import BitString, Sequence, Oid
 from ASN1Der.Factory.RawToASN1Der import RawToASN1DerObjectFactory
 from ASN1Der import ASN1DerObjectTagsEnum
 
-class TestDerIBase(unittest.TestCase):
+class TestRawToASN1Der(unittest.TestCase):
 
     def test_127_data(self):
         """ 测试长度127字节的数据-Sequence类型 """

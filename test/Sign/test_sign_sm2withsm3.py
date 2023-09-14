@@ -2,6 +2,7 @@ import unittest, sys
 sys.path.append('.')
 
 from Sign.SM2withSM3Der import SM2withSM3SignDer, SM2withSM3VerifyDer
+from utils.StringConvert import StringConvert
 
 test_data_1: dict = {
     "plain_text": "hello",
@@ -20,29 +21,29 @@ class TestDerIBase(unittest.TestCase):
         signed_text = SM2withSM3SignDer(
             test_data_1["private_key"],
             test_data_1["public_key"]).sign(
-                test_data_1["plain_text"],
+                StringConvert.str_convert_base64(test_data_1["plain_text"]),
                 asn1_der=True
             )
         verify_flag1: bool = SM2withSM3VerifyDer().verify(
-            plain_text=test_data_1["plain_text"],
+            plain_text=StringConvert.str_convert_base64(test_data_1["plain_text"]),
             signed_text = signed_text,
             public_key = test_data_1["public_key_hex_128"],
             asn1_der=True
         )
         verify_flag2: bool = SM2withSM3VerifyDer().verify(
-            plain_text=test_data_1["plain_text"],
+            plain_text=StringConvert.str_convert_base64(test_data_1["plain_text"]),
             signed_text = signed_text,
             public_key = test_data_1["public_key_hex_130"],
             asn1_der=True
         )
         verify_flag3: bool = SM2withSM3VerifyDer().verify(
-            plain_text=test_data_1["plain_text"],
+            plain_text=StringConvert.str_convert_base64(test_data_1["plain_text"]),
             signed_text = signed_text,
             public_key = test_data_1["public_key_der_base64"],
             asn1_der=True
         )
         verify_flag4: bool = SM2withSM3VerifyDer().verify(
-            plain_text=test_data_1["plain_text"],
+            plain_text=StringConvert.str_convert_base64(test_data_1["plain_text"]),
             signed_text = signed_text,
             public_key = test_data_1["public_key_der_hex"],
             asn1_der=True

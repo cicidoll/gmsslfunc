@@ -21,7 +21,6 @@ class TestSM2Asymmetric(unittest.TestCase):
             public_key=sm2_key["pk"],
             asn1_der=True
         )
-        # MG8CIQDmq/L4cbD8h9zxIiCAf1aKIzexMtVHEqFiy1GxLUEzBQIhAPHUby3ZxgxGXKrpWOzikkgKjb6LOzOXrgoGw8gx6glaBCAX/OsN1aKeAx94fRWR01KQEym9dPIxJ+2N3qaCMZAX5wQFRT5GWpY=
         
         plain_text_data: str = sm2_asymmetric_der.decrypt(
             private_key=sm2_key["sk"], 

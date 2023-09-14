@@ -27,7 +27,5 @@ class TestSM2Asymmetric(unittest.TestCase):
             encrypted_data=encrypted_data
         )
 
-        print(StringConvert.hex_convert_str(plain_text_data))
-
 if __name__ == "__main__":
     unittest.main()

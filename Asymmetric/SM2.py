@@ -19,10 +19,10 @@ class SM2Asymmetric:
             SM2非对称加密算法
             :params plain_text utf-8字符集 Hex编码原文
             :params public_key 128长度Hex编码公钥
-            :returns: String类型 Hex编码 C1C3C2 (C1: 04+x+y)
+            :returns: String类型 Hex编码 C1C3C2Raw格式加密值 (C1: 04+x+y)
         """
         t: str = "0"
-        while int(t, base=16)==0:
+        while int(t, base=16) == 0:
             k: int = random.randint(1, SM2EllipticCurve.n-1) # A1: 用随机数发生器产生整数d∈[1,n-1]
             C1: str = kG(k, "%64x%64x" % (self.elliptic_curve.G[0], self.elliptic_curve.G[1]), LEN_PARA) # A2: 多倍点计算C1=[k]G
             # A3: S=[h]PB 实际中余因子等于1，不需要这一步
@@ -37,7 +37,7 @@ class SM2Asymmetric:
         """
             SM2非对称解密算法
             :params private_key 64长度Hex编码SM2私钥
-            :params encrypted_data utf-8字符集 Hex编码 C1C3C2排列 (C1: 04+x+y)
+            :params encrypted_data utf-8字符集 C1C3C2Raw格式Hex编码 (C1: 04+x+y)
             :returns: String类型-原文 Hex编码
         """
         encrypted_data = encrypted_data[2:] if encrypted_data[:2] == "04" else encrypted_data

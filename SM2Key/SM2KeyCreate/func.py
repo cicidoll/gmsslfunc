@@ -13,4 +13,9 @@ LEN_PARA = 64
 # calculate_public_key: str = lambda privkey: kG(int(privkey,16), "%64x%64x" % (SM2EllipticCurve.G[0], SM2EllipticCurve.G[1]), LEN_PARA)
 
 def calculate_public_key(privkey: str) -> str:
+    """
+    根据SM2私钥计算SM2公钥 
+    :params privkey 16进制私钥 【使用pysmx中的多倍点运算-加快计算速度
+    :return: String类型 128长度的x+y
+    """
     return kG(int(privkey,16), "%64x%64x" % (SM2EllipticCurve.G[0], SM2EllipticCurve.G[1]), LEN_PARA)

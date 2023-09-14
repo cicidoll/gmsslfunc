@@ -1,13 +1,13 @@
 from operator import xor
 from typing import Dict, Any
 # 导入底层方法
-from ...Sign import SM2withSM3SignDer, SM2withSM3VerifyDer
+from Sign import SM2withSM3SignDer, SM2withSM3VerifyDer
 from .Enums import ReturnsData, Returns
 # 导入检测所需函数
-from ...utils import StringConvert
-from ...SM2Key.PrivateKey import SM2PrivateKeyProcess
-from ...SM2Key.Pubkey import SM2PubkeyProcess
-from ...SM2Key.SM2KeyCreate import calculate_public_key
+from utils import StringConvert
+from SM2Key.PrivateKey import SM2PrivateKeyProcess
+from SM2Key.Pubkey import SM2PubkeyProcess
+from SM2Key.SM2KeyCreate import calculate_public_key
 
 
 class RawAPI:
