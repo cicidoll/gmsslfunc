@@ -14,6 +14,11 @@ from .sm2withsm3 import SM2withSM3Sign, SM2withSM3Verify
 class SM2withSM3SignDer:
 
     def __init__(self, private_key: str, public_key: str = "") -> None:
+        """
+            初始化实例
+            :params private_key 私钥 支持Hex编码Raw格式/Base64编码Der格式
+            :params public_key 公钥 支持Hex编码Raw格式/Base64编码Der格式
+        """
         self.private_key: SM2PrivateKey = SM2PrivateKeyProcess(private_key).private_key_der
         self.public_key: SM2Pubkey = SM2PubkeyProcess(public_key).pubkey_der if public_key != "" else SM2PubkeyProcess(calculate_public_key(private_key)).pubkey_der
         self.sm2_with_sm3_sign: SM2withSM3Sign = SM2withSM3Sign(
@@ -27,7 +32,7 @@ class SM2withSM3SignDer:
             :params plain_text utf-8字符集 Base64编码
             :params userid 使用默认1234567812345678 
             :params asn1_der 是否输出Der格式Base64编码签名
-            :return: 字符串类型 True:返回Der格式Base64编码签名值; False:返回Raw格式Hex编码128长度的签名值
+            :return: 字符串类型 True: 返回Der格式Base64编码签名值; False: 返回Raw格式Hex编码128长度的签名值
         """
         signed_data: str = self.sm2_with_sm3_sign.sign(plain_text, userid)
         if asn1_der == False:

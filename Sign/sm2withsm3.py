@@ -26,7 +26,7 @@ class SM2withSM3Sign:
     def __init__(self, private_key: str, public_key: str = "") -> None:
         """ 
             初始化
-            :params private_key Hex编码Raw格式私钥
+            :params private_key Hex编码Raw格式64长度私钥
             :params public_key Hex编码Raw格式128长度公钥
         """
         # 赋值实例属性
@@ -38,14 +38,19 @@ class SM2withSM3Sign:
             SM2withSM3签名
             :params plain_text utf-8编码原文 Base64编码
             :params userid 使用默认1234567812345678
-            :return: 字符串类型 返回Raw格式Hex编码128长度的签名值
+            :return: str类型 返回Raw格式Hex编码128长度的签名值
         """
         A2: int = int(self._A1andA2(plain_text, userid), base=16) # 十六进制
         R, S = self._A3A4A5A6(A2)
         return "%s%s" % (hex(R).replace("0x", "").zfill(64), hex(S).replace("0x", "").zfill(64))
 
     def _A1andA2(self, plain_text: str, userid: str) -> str:
-        """ A1A2计算过程 """
+        """
+            A1A2计算过程
+            :params plain_text str类型 utf-8编码原文 Base64编码
+            :params userid str类型 字符串
+            :return: Hex编码 str类型
+        """
         IDA: str = userid.encode('utf-8').hex() # userid 
         ENTLA: str = hex_zfill(hex(int(len(IDA) / 2)*8)).zfill(4) # hex格式
         a, b, Gx, Gy = map(hex_zfill, map(hex, (self.elliptic_curve.a, self.elliptic_curve.b, self.elliptic_curve._Gx, self.elliptic_curve._Gy)))
@@ -56,7 +61,11 @@ class SM2withSM3Sign:
         return A2
 
     def _A3A4A5A6(self, A2: int) -> Tuple[int, int]:
-        """ A3A4A5A6计算过程 """
+        """
+            A3A4A5A6计算过程
+            :params A2 int类型
+            :return: 签名值的R与S 元组(整数类型, 整数类型)
+        """
         while True:
             k: int = random.randint(1, self.elliptic_curve.n - 2) # A3
             x1 = int(kG(k, "%64x%64x" % (self.elliptic_curve.G[0], self.elliptic_curve.G[1]), LEN_PARA)[:64], 16) # A4

@@ -4,7 +4,7 @@ from typing import List
 import math
 
 class PointCalculate:
-    """ 倍点计算 """
+    """ 朴素倍点计算 """
     elliptic_curve: EllipticCurveIBase
 
     def __init__(self, elliptic_curve: EllipticCurveIBase) -> None:
@@ -12,10 +12,11 @@ class PointCalculate:
         self.elliptic_curve = elliptic_curve
 
     def muly_point(self, n: int, P: List[int]) -> List[int]:
-        """ 多倍点计算
-            n为十进制，表示标量乘法相乘次数
-            P为基点
-            返回的坐标为十进制整数
+        """ 
+            多倍点计算, n为十进制, 表示标量乘法相乘次数, P为基点, 返回的坐标为十进制整数
+            :params n int类型
+            :params P List[int]类型
+            :return: List[int] [x, y]
         """
         # 快速指数运算
         n_0b = bin(n).replace('0b', '')
